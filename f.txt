@@ -1,0 +1,171 @@
+"use client";
+
+import { useActionState, useEffect, useState } from "react";
+import Form from "next/form";
+import { createProfile } from "../actions";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ZodErrors } from "./ZodError";
+import { ImageUpload } from "../api";
+
+type ProfileStepProps = {
+  currentStep: number;
+  nextStep: () => void;
+};
+
+type ProfileForm = z.infer<typeof schema>
+
+type FormState = {
+  ZodError: {
+    name?: string[];
+    about?: string[];
+    socialMediaURL?: string[];
+    avatarImageUrl?: string[];
+  };
+  message: string;
+  data?: {
+    success: boolean;
+  };
+};
+
+const INITIAL_STATE: FormState = {
+  data: undefined,
+  message: "",
+  ZodError: {},
+};
+
+export default function NewProfile({ nextStep }: ProfileStepProps) {
+  const profileReducer = async (_state: FormState, formData: FormData): Promise<FormState> => {
+    return await createProfile(formData);
+  };
+
+  const [formState, formAction] = useActionState<FormState, FormData>(profileReducer, INITIAL_STATE);
+  const [avatarImageUrl, setAvatarImageUrl] = useState("");
+
+  useEffect(() => {
+    const noErrors = Object.values(formState?.ZodError || {}).every(
+      (fieldErrors) => !fieldErrors || fieldErrors.length === 0
+    );
+
+    if (noErrors && formState?.data?.success) {
+      nextStep();
+    }
+  }, [formState]);
+
+  return (
+    <div className="w-127 w-max-168 flex flex-col gap-6">
+      <h3 className="font-semibold text-2xl">Complete your profile page</h3>
+      <Form action={formAction} className="space-y-6">
+        <div className="flex flex-col gap-2">
+          <Label>Add photo</Label>
+
+          <ImageUpload
+            onUpload={(url) => {
+              setAvatarImageUrl(url);
+            }}
+          />
+
+          <input type="hidden" name="avatarImageUrl" value={avatarImageUrl} />
+          <ZodErrors error={formState?.ZodError?.avatarImageUrl} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="name">Name</Label>
+          <Input type="text" id="name" name="name" placeholder="Enter your name here" />
+          <ZodErrors error={formState?.ZodError?.name} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="about">About</Label>
+          <Input type="text" id="about" name="about" placeholder="Write about yourself" />
+          <ZodErrors error={formState?.ZodError?.about} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="socialMediaURL">Social media URL</Label>
+          <Input type="text" id="socialMediaURL" name="socialMediaURL" placeholder="https://" />
+          <ZodErrors error={formState?.ZodError?.socialMediaURL} />
+        </div>
+
+        <div className="flex justify-end">
+          <Button type="submit" className="py-3 w-1/2 rounded-lg" disabled={!avatarImageUrl}>
+            Continue
+          </Button>
+        </div>
+      </Form>
+    </div>
+  );
+}
+----------------------------------------------------------------------------------------------------
+("use server");
+
+import { z } from "zod";
+import { currentUser } from "@clerk/nextjs/server";
+import { createClerkClient } from "@clerk/backend";
+import prisma from "@/lib/prisma";
+
+const schemaUserProfile = z.object({
+  avatarImageUrl: z.string().url({ message: "Please upload a valid image URL." }),
+  name: z.string().min(3, { message: "Please enter name" }),
+  about: z.string().min(1, { message: "Please enter info about yourself" }),
+  socialMediaURL: z.string().url({ message: "Please enter a valid URL" }),
+});
+
+export const createProfile = async (formData: FormData) => {
+  const user = await currentUser();
+
+  if (!user) {
+    return {
+      message: "No logged-in user",
+      ZodError: {},
+    };
+  }
+
+  const parsed = schemaUserProfile.safeParse({
+    avatarImageUrl: formData.get("avatarImageUrl"),
+    name: formData.get("name"),
+    about: formData.get("about"),
+    socialMediaURL: formData.get("socialMediaURL"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ZodError: parsed.error.flatten().fieldErrors,
+      message: "Validation failed",
+    };
+  }
+
+  const { avatarImageUrl, name, about, socialMediaURL } = parsed.data;
+
+  const imageResponse = await fetch(avatarImageUrl);
+  const imageBlob = await imageResponse.blob();
+
+  const clerkClient = createClerkClient({
+    secretKey: process.env.CLERK_SECRET_KEY!,
+  });
+
+  await clerkClient.users.updateUserProfileImage(user.id, { file: imageBlob });
+
+  await prisma.profile.create({
+    data: {
+      name,
+      about,
+      avatarImage: avatarImageUrl,
+      socialMediaURL,
+      backgroundImage: "",
+      userId: String(user.id),
+      email: user.emailAddresses[0]?.emailAddress || "",
+      successMessage: "",
+    },
+  });
+
+  return {
+    data: {
+      success: true,
+    },
+    ZodError: {},
+    message: "Profile created",
+  };
+};
+

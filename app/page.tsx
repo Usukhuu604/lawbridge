@@ -1,103 +1,40 @@
-import Image from "next/image";
+import React from "react";
+import { Input } from "@/components/ui/input";
 
-export default function Home() {
+const page = () => {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="w-screen h-screen flex justify-center items-center">
+      <form action="" className="border p-5">
+        A. General User (Solution Seeker) Registration: Name: Format: Full name (first name, last name). Consider
+        supporting Mongolian script. Validation: Required field, min/max length, only alphabetic characters (and
+        potentially hyphens/apostrophes for complex names). Email Address: Format: Standard email format (e.g.,
+        user@example.com). Validation: Required field, valid email regex, uniqueness check. Verification: Email
+        confirmation link. Phone Number: Format: Mongolian phone numbers typically start with 9, 8, or 7, followed by 7
+        digits (e.g., 99xxxxxx, 70xxxxxx, 88xxxxxx). Total 8 digits. Validation: Required field, 8 digits, starts with
+        allowed prefixes. Verification: SMS OTP (One-Time Password) is highly recommended for phone number verification.
+        Location (Aimags/Soums or Districts of Ulaanbaatar): Format: Dropdown menus or searchable fields for selecting
+        administrative divisions in Mongolia (Aimags/Provinces, and then Soums/Districts). Validation: Required
+        selection. Problem Description: Format: Free text field. Validation: Required field, min/max length, discourage
+        sensitive personal information (unless explicitly part of a secure, confidential submission).
+        <hr /> B. Lawyer Registration: In addition to the general user validations: Lawyer's Full Name: (As per their
+        official documents) Mongolian National Identity Card Number (Регистрийн дугаар): Format: This is a unique
+        10-digit number for Mongolian citizens, often starting with two letters followed by 8 digits (e.g., АБ12345678).
+        Validation: Required field, exact format, uniqueness check against your database. Note: This is a crucial piece
+        of data for verification with official sources. Lawyer's License Number: Format: As issued by the Mongolian Bar
+        Association. Validation: Required field, specific format (if any), uniqueness. Year of Admission to the Bar:
+        Validation: Numeric, realistic year range. Areas of Specialization: Format: Multi-select checkboxes or a tag
+        input field (e.g., Criminal Law, Family Law, Corporate Law, etc.). Validation: Required to select at least one
+        area. Office Address: Format: Street, Building, Apartment/Suite, District/Soum, Aimag/City (Ulaanbaatar).
+        Validation: Required fields. Professional Bio/Description: Format: Text area. Validation: Min/max length.
+        Profile Picture: Validation: File type (JPG, PNG), file size limits. Documents Upload: Mandatory: Scanned copy
+        of Lawyer's License, National ID. Optional: Academic degrees, certificates, professional recommendations.
+        Validation: File types (PDF, JPG, PNG), file size limits, secure storage.
+        <hr /> C. Appointment Scheduling: Date and Time: Validation: Must be in the future, within lawyer's
+        availability, proper time slot. Appointment Type: (e.g., In-person, Phone Call, Video Call) Validation: Required
+        selection. Briefing for Lawyer: Validation: Text area, min/max length.
+      </form>
     </div>
   );
-}
+};
+
+export default page;
