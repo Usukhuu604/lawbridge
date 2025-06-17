@@ -169,3 +169,283 @@ export const createProfile = async (formData: FormData) => {
   };
 };
 
+------------------------------------------------------------------------------------------------
+npm install react-hook-form @hookform/resolvers zod
+
+"use client";
+
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { newLawyer } from "./actions/lawyerForm";
+
+const specializations = [
+  "Criminal Law",
+  "Family Law",
+  "Corporate Law",
+  "Civil Law",
+  "Property Law",
+  "Intellectual Property",
+  "Tax Law",
+  "Labor Law",
+];
+
+const schemaLawyerProfile = z.object({
+  fullName: z.string().min(3, { message: "Full name is required" }),
+  nationalId: z.string().regex(/^[А-Я]{2}\d{8}$/, { message: "Invalid National ID format (e.g., АБ12345678)" }),
+  licenseNumber: z.string().min(1, { message: "License number is required" }),
+  yearOfAdmission: z.string().min(4, { message: "Year is required" }),
+  specializations: z.array(z.string()).min(1, { message: "Select at least one specialization" }),
+  officeAddress: z.object({
+    street: z.string().min(1, { message: "Street is required" }),
+    building: z.string().min(1, { message: "Building is required" }),
+    apartment: z.string().optional(),
+    district: z.string().min(1, { message: "District is required" }),
+    aimag: z.string().min(1, { message: "Aimag/City is required" }),
+  }),
+  bio: z
+    .string()
+    .min(50, { message: "Bio must be at least 50 characters" })
+    .max(1000, { message: "Bio cannot exceed 1000 characters" }),
+  profilePicture: z.instanceof(FileList).min(1, { message: "Profile picture is required" }),
+  documents: z.instanceof(FileList).min(2, { message: "Please upload required documents" }),
+});
+
+type FormData = z.infer<typeof schemaLawyerProfile>;
+
+const Page = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schemaLawyerProfile),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    const formData = new FormData();
+
+    // Append all form fields to FormData
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "specializations") {
+        value.forEach((spec:any) => formData.append("specializations", spec));
+      } else if (key === "officeAddress") {
+        Object.entries(value).forEach(([addrKey, addrValue]) => {
+          formData.append(addrKey, addrValue);
+        });
+      } else if (key === "profilePicture" || key === "documents") {
+        Array.from(value).forEach((file) => {
+          formData.append(key, file);
+        });
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    const result = await newLawyer(formData);
+    console.log(result);
+  };
+
+  return (
+    <div className="w-screen min-h-screen flex justify-center items-center p-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-2xl border p-8 rounded-lg space-y-6">
+        <h1 className="text-2xl font-bold mb-6">Lawyer Registration</h1>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Full Name</label>
+            <Input {...register("fullName")} />
+            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">National ID</label>
+            <Input {...register("nationalId")} placeholder="АБ12345678" />
+            {errors.nationalId && <p className="text-red-500 text-sm">{errors.nationalId.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">License Number</label>
+            <Input {...register("licenseNumber")} />
+            {errors.licenseNumber && <p className="text-red-500 text-sm">{errors.licenseNumber.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Year of Admission</label>
+            <Input type="number" {...register("yearOfAdmission")} />
+            {errors.yearOfAdmission && <p className="text-red-500 text-sm">{errors.yearOfAdmission.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Specializations</label>
+            <div className="grid grid-cols-2 gap-2">
+              {specializations.map((spec) => (
+                <div key={spec} className="flex items-center space-x-2">
+                  <Checkbox value={spec} {...register("specializations")} />
+                  <label>{spec}</label>
+                </div>
+              ))}
+            </div>
+            {errors.specializations && <p className="text-red-500 text-sm">{errors.specializations.message}</p>}
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-medium">Office Address</h3>
+            <div>
+              <label className="block text-sm font-medium mb-1">Street</label>
+              <Input {...register("officeAddress.street")} />
+              {errors.officeAddress?.street && (
+                <p className="text-red-500 text-sm">{errors.officeAddress.street.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Building</label>
+              <Input {...register("officeAddress.building")} />
+              {errors.officeAddress?.building && (
+                <p className="text-red-500 text-sm">{errors.officeAddress.building.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Apartment (Optional)</label>
+              <Input {...register("officeAddress.apartment")} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">District</label>
+              <Input {...register("officeAddress.district")} />
+              {errors.officeAddress?.district && (
+                <p className="text-red-500 text-sm">{errors.officeAddress.district.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Aimag/City</label>
+              <Input {...register("officeAddress.aimag")} />
+              {errors.officeAddress?.aimag && (
+                <p className="text-red-500 text-sm">{errors.officeAddress.aimag.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Professional Bio</label>
+            <Textarea {...register("bio")} rows={4} />
+            {errors.bio && <p className="text-red-500 text-sm">{errors.bio.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Profile Picture</label>
+            <Input type="file" accept="image/jpeg,image/png" {...register("profilePicture")} />
+            {errors.profilePicture && <p className="text-red-500 text-sm">{errors.profilePicture.message}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Required Documents (License & ID)</label>
+            <Input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" {...register("documents")} />
+            {errors.documents && <p className="text-red-500 text-sm">{errors.documents.message}</p>}
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full">
+          Register as Lawyer
+        </Button>
+      </form>
+    </div>
+  );
+};
+
+export default Page;
+
+-------------------------------------------------------------------------------------
+
+"use server";
+
+import { z } from "zod";
+
+const schemaLawyerProfile = z.object({
+  fullName: z.string().min(3, { message: "Full name is required" }),
+  nationalId: z.string().regex(/^[А-Я]{2}\d{8}$/, { message: "Invalid National ID format (e.g., АБ12345678)" }),
+  licenseNumber: z.string().min(1, { message: "License number is required" }),
+  yearOfAdmission: z
+    .number()
+    .min(1900, { message: "Invalid year" })
+    .max(new Date().getFullYear(), { message: "Year cannot be in the future" }),
+  specializations: z.array(z.string()).min(1, { message: "Select at least one specialization" }),
+  officeAddress: z.object({
+    street: z.string().min(1, { message: "Street is required" }),
+    building: z.string().min(1, { message: "Building is required" }),
+    apartment: z.string().optional(),
+    district: z.string().min(1, { message: "District is required" }),
+    aimag: z.string().min(1, { message: "Aimag/City is required" }),
+  }),
+  bio: z
+    .string()
+    .min(50, { message: "Bio must be at least 50 characters" })
+    .max(1000, { message: "Bio cannot exceed 1000 characters" }),
+  profilePicture: z
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, { message: "File size must be less than 5MB" })
+    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+      message: "Only JPG and PNG files are allowed",
+    }),
+  documents: z
+    .array(z.instanceof(File))
+    .min(2, { message: "Please upload required documents" })
+    .refine((files) => files.every((file) => file.size <= 10 * 1024 * 1024), {
+      message: "Each file must be less than 10MB",
+    })
+    .refine((files) => files.every((file) => ["application/pdf", "image/jpeg", "image/png"].includes(file.type)), {
+      message: "Only PDF, JPG, and PNG files are allowed",
+    }),
+});
+
+export const newLawyer = async (formData: FormData) => {
+  const user = ""; // This should be replaced with actual user authentication
+
+  if (!user) {
+    return {
+      message: "No logged-in user",
+      ZodError: {},
+    };
+  }
+
+  const parsed = schemaLawyerProfile.safeParse({
+    fullName: formData.get("fullName"),
+    nationalId: formData.get("nationalId"),
+    licenseNumber: formData.get("licenseNumber"),
+    yearOfAdmission: parseInt(formData.get("yearOfAdmission") as string),
+    specializations: formData.getAll("specializations"),
+    officeAddress: {
+      street: formData.get("street"),
+      building: formData.get("building"),
+      apartment: formData.get("apartment"),
+      district: formData.get("district"),
+      aimag: formData.get("aimag"),
+    },
+    bio: formData.get("bio"),
+    profilePicture: formData.get("profilePicture"),
+    documents: formData.getAll("documents"),
+  });
+
+  if (!parsed.success) {
+    return {
+      ZodError: parsed.error.flatten().fieldErrors,
+      message: "Validation failed",
+    };
+  }
+
+  return {
+    data: {
+      success: true,
+    },
+    ZodError: {},
+    message: "Lawyer profile created successfully",
+  };
+};

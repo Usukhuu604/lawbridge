@@ -1,4 +1,3 @@
-II. Form Validations 
 
 A. General User (Solution Seeker) Registration:
 
