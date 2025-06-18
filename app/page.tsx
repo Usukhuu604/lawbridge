@@ -1,40 +1,253 @@
-import React from "react";
-import { Input } from "@/components/ui/input";
+"use client";
 
-const page = () => {
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { newLawyer } from "./actions/lawyerForm";
+import { ZodErrors } from "./_components/ZodError";
+
+// const specializations = [
+//   "Criminal Law",
+//   "Family Law",
+//   "Corporate Law",
+//   "Civil Law",
+//   "Property Law",
+//   "Intellectual Property",
+//   "Tax Law",
+//   "Labor Law",
+// ];
+
+const schemaLawyerProfile = z.object({
+  fullName: z.string().min(3, { message: "Full name is required" }),
+  nationalId: z.string().regex(/^[А-Я]{2}\d{8}$/, { message: "Invalid National ID format (e.g., АБ12345678)" }),
+  licenseNumber: z.string().min(1, { message: "License number is required" }),
+  // Changed yearOfAdmission to z.number() and added a refine for min year
+  // yearOfAdmission: z.string().regex(/^\d{4}$/, { message: "Year of Admission must be a 4-digit number" })
+  //   .transform(Number) // Convert to number after regex validation
+  //   .refine(year => year >= 1900 && year <= new Date().getFullYear(), {
+  //     message: `Year must be between 1900 and ${new Date().getFullYear()}`,
+  //   }),
+  specializations: z.array(z.string()).min(1, { message: "Select at least one specialization" }),
+  officeAddress: z.object({
+    street: z.string().min(1, { message: "Street is required" }),
+    building: z.string().min(1, { message: "Building is required" }),
+    apartment: z.string().optional(),
+    district: z.string().min(1, { message: "District is required" }),
+    aimag: z.string().min(1, { message: "Aimag/City is required" }),
+  }),
+  bio: z
+    .string()
+    .min(50, { message: "Bio must be at least 50 characters" })
+    .max(1000, { message: "Bio cannot exceed 1000 characters" }),
+  // profilePicture: z
+  //   .instanceof(FileList)
+  //   .refine((fileList) => fileList.length > 0, { message: "Profile picture is required" }),
+  documents: z
+    .instanceof(FileList)
+    .refine((fileList) => fileList.length >= 2, { message: "Please upload at least 2 required documents" }),
+});
+
+type FormData = z.infer<typeof schemaLawyerProfile>;
+
+const LawyerRegistrationForm = () => {
+  const {
+    register,
+    handleSubmit,
+    setValue, // Added setValue to manually update checkbox array
+    watch, // Added watch to get current value of specializations
+    formState: { errors, isSubmitting }, // Added isSubmitting for button state
+  } = useForm<FormData>({
+    resolver: zodResolver(schemaLawyerProfile),
+    defaultValues: {
+      specializations: [], // Initialize specializations as an empty array
+    },
+  });
+
+  const watchedSpecializations = watch("specializations"); // Watch for changes in specializations
+
+  // const handleCheckboxChange = (checked: boolean | string, value: string) => {
+  //   const currentSpecializations = watchedSpecializations || [];
+  //   if (checked) {
+  //     setValue("specializations", [...currentSpecializations, value], { shouldValidate: true });
+  //   } else {
+  //     setValue(
+  //       "specializations",
+  //       currentSpecializations.filter((spec) => spec !== value),
+  //       { shouldValidate: true }
+  //     );
+  //   }
+  // };
+
+  const onSubmit = async (data: FormData) => {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "specializations") {
+        (value as string[]).forEach((spec) => formData.append("specializations", spec));
+      } else if (key === "officeAddress") {
+        Object.entries(value as { [s: string]: unknown }).forEach(([addrKey, addrValue]) => {
+          formData.append(`officeAddress[${addrKey}]`, String(addrValue)); // Append with specific key for nesting
+        });
+      } else if (key === "profilePicture" || key === "documents") {
+        Array.from(value as FileList).forEach((file) => {
+          formData.append(key, file);
+        });
+      } else {
+        formData.append(key, String(value)); // Ensure all other values are converted to string
+      }
+    });
+
+    try {
+      const result = await newLawyer(formData);
+      console.log("Form submission result:", result);
+      // You might want to add success/error feedback here (e.g., toast notifications)
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Handle submission errors
+    }
+  };
+
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <form action="" className="border p-5">
-        A. General User (Solution Seeker) Registration: Name: Format: Full name (first name, last name). Consider
-        supporting Mongolian script. Validation: Required field, min/max length, only alphabetic characters (and
-        potentially hyphens/apostrophes for complex names). Email Address: Format: Standard email format (e.g.,
-        user@example.com). Validation: Required field, valid email regex, uniqueness check. Verification: Email
-        confirmation link. Phone Number: Format: Mongolian phone numbers typically start with 9, 8, or 7, followed by 7
-        digits (e.g., 99xxxxxx, 70xxxxxx, 88xxxxxx). Total 8 digits. Validation: Required field, 8 digits, starts with
-        allowed prefixes. Verification: SMS OTP (One-Time Password) is highly recommended for phone number verification.
-        Location (Aimags/Soums or Districts of Ulaanbaatar): Format: Dropdown menus or searchable fields for selecting
-        administrative divisions in Mongolia (Aimags/Provinces, and then Soums/Districts). Validation: Required
-        selection. Problem Description: Format: Free text field. Validation: Required field, min/max length, discourage
-        sensitive personal information (unless explicitly part of a secure, confidential submission).
-        <hr /> B. Lawyer Registration: In addition to the general user validations: Lawyer's Full Name: (As per their
-        official documents) Mongolian National Identity Card Number (Регистрийн дугаар): Format: This is a unique
-        10-digit number for Mongolian citizens, often starting with two letters followed by 8 digits (e.g., АБ12345678).
-        Validation: Required field, exact format, uniqueness check against your database. Note: This is a crucial piece
-        of data for verification with official sources. Lawyer's License Number: Format: As issued by the Mongolian Bar
-        Association. Validation: Required field, specific format (if any), uniqueness. Year of Admission to the Bar:
-        Validation: Numeric, realistic year range. Areas of Specialization: Format: Multi-select checkboxes or a tag
-        input field (e.g., Criminal Law, Family Law, Corporate Law, etc.). Validation: Required to select at least one
-        area. Office Address: Format: Street, Building, Apartment/Suite, District/Soum, Aimag/City (Ulaanbaatar).
-        Validation: Required fields. Professional Bio/Description: Format: Text area. Validation: Min/max length.
-        Profile Picture: Validation: File type (JPG, PNG), file size limits. Documents Upload: Mandatory: Scanned copy
-        of Lawyer's License, National ID. Optional: Academic degrees, certificates, professional recommendations.
-        Validation: File types (PDF, JPG, PNG), file size limits, secure storage.
-        <hr /> C. Appointment Scheduling: Date and Time: Validation: Must be in the future, within lawyer's
-        availability, proper time slot. Appointment Type: (e.g., In-person, Phone Call, Video Call) Validation: Required
-        selection. Briefing for Lawyer: Validation: Text area, min/max length.
+    <div className="w-screen min-h-screen flex justify-center items-center p-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-2xl border p-8 rounded-lg space-y-6">
+        <h1 className="text-2xl font-bold mb-6 text-center">Өмгөөлөгчийн бүртгэл</h1>
+
+        <div>
+          <label htmlFor="fullName" className="block text-sm font-medium mb-1">
+            Овог нэр
+          </label>
+          <Input id="fullName" {...register("fullName")} />
+          <ZodErrors error={errors.fullName?.message ? [errors.fullName.message] : undefined} />
+        </div>
+
+        <div>
+          <label htmlFor="nationalId" className="block text-sm font-medium mb-1">
+            Регистрын дугаар
+          </label>
+          <Input id="nationalId" {...register("nationalId")} placeholder="АБ12345678" />
+          <ZodErrors error={errors.nationalId?.message ? [errors.nationalId.message] : undefined} />
+        </div>
+
+        <div>
+          <label htmlFor="licenseNumber" className="block text-sm font-medium mb-1">
+            Зөвшөөрлийн дугаар
+          </label>
+          <Input id="licenseNumber" {...register("licenseNumber")} />
+          <ZodErrors error={errors.licenseNumber?.message ? [errors.licenseNumber.message] : undefined} />
+        </div>
+
+        {/* 
+        <div>
+          <label htmlFor="yearOfAdmission" className="block text-sm font-medium mb-1">Year of Admission</label>
+          <Input id="yearOfAdmission" type="number" {...register("yearOfAdmission")} />
+          <ZodErrors error={errors.yearOfAdmission?.message ? [errors.yearOfAdmission.message] : undefined} />
+        </div>
+ */}
+        {/* <div>
+          <label className="block text-sm font-medium mb-1">Specializations</label>
+          <div className="grid grid-cols-2 gap-2">
+            {specializations.map((spec) => (
+              <div key={spec} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`spec-${spec}`}
+                  checked={watchedSpecializations.includes(spec)}
+                  onCheckedChange={(checked) => handleCheckboxChange(checked, spec)}
+                />
+                <label htmlFor={`spec-${spec}`} className="text-sm cursor-pointer">
+                  {spec}
+                </label>
+              </div>
+            ))}
+          </div>
+          {errors.specializations && <p className="text-red-500 text-sm mt-1">{errors.specializations.message}</p>}
+        </div> */}
+
+        {/* Office Address */}
+        <div className="space-y-4 border p-4 rounded-md">
+          <h3 className="font-semibold text-lg mb-2">Ажлын хаяг</h3>
+          <div>
+            <label htmlFor="street" className="block text-sm font-medium mb-1">
+              Гудамж
+            </label>
+            <Input id="street" {...register("officeAddress.street")} />
+            <ZodErrors
+              error={errors.officeAddress?.street?.message ? [errors.officeAddress.street.message] : undefined}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="building" className="block text-sm font-medium mb-1">
+              Байр
+            </label>
+            <Input id="building" {...register("officeAddress.building")} />
+            <ZodErrors
+              error={errors.officeAddress?.building?.message ? [errors.officeAddress.building.message] : undefined}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="apartment" className="block text-sm font-medium mb-1">
+              Тоот (Optional)
+            </label>
+            <Input id="apartment" {...register("officeAddress.apartment")} />
+          </div>
+
+          <div>
+            <label htmlFor="district" className="block text-sm font-medium mb-1">
+              Дүүрэг
+            </label>
+            <Input id="district" {...register("officeAddress.district")} />
+            <ZodErrors
+              error={errors.officeAddress?.district?.message ? [errors.officeAddress.district.message] : undefined}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="aimag" className="block text-sm font-medium mb-1">
+              Aimag/Хот
+            </label>
+            <Input id="aimag" {...register("officeAddress.aimag")} />
+            <ZodErrors
+              error={errors.officeAddress?.aimag?.message ? [errors.officeAddress.aimag.message] : undefined}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="bio" className="block text-sm font-medium mb-1">
+            Мэргэжлийн намтар
+          </label>
+          <Textarea id="bio" {...register("bio")} rows={4} />
+          <ZodErrors error={errors.bio?.message ? [errors.bio.message] : undefined} />
+        </div>
+
+        {/* <div>
+          <label htmlFor="profilePicture" className="block text-sm font-medium mb-1">
+            Profile Picture
+          </label>
+          <Input id="profilePicture" type="file" accept="image/jpeg,image/png" {...register("profilePicture")} />
+          <ZodErrors error={errors.profilePicture?.message ? [errors.profilePicture.message] : undefined} />
+        </div> */}
+
+        <div>
+          <label htmlFor="documents" className="block text-sm font-medium mb-1">
+            Шаардлагатай бичиг баримт (Лиценз ба Иргэний үнэмлэх)
+          </label>
+          <Input id="documents" type="file" multiple accept=".pdf,.jpg,.jpeg,.png" {...register("documents")} />
+          <ZodErrors error={errors.documents?.message ? [errors.documents.message] : undefined} />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Registering..." : "Register as Lawyer"}
+        </Button>
       </form>
     </div>
   );
 };
 
-export default page;
+export default LawyerRegistrationForm;
