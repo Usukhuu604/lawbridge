@@ -1,3 +1,4 @@
+avatar image -> cloudflare R2
 
 A. General User (Solution Seeker) Registration:
 
@@ -56,3 +57,4 @@ Date and Time:
     Validation: Required selection.
 Briefing for Lawyer:
     Validation: Text area, min/max length.
+
