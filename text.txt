@@ -1,4 +1,6 @@
 avatar image -> cloudflare R2
+git fetch origin 
+git checkout 4-lawbridge-frontend-react-hook-formzod-lawyer-signup-form
 
 A. General User (Solution Seeker) Registration:
 
