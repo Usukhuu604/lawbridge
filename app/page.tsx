@@ -44,9 +44,6 @@ const schemaLawyerProfile = z.object({
     .string()
     .min(50, { message: "Bio must be at least 50 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
-  // profilePicture: z
-  //   .instanceof(FileList)
-  //   .refine((fileList) => fileList.length > 0, { message: "Profile picture is required" }),
   documents: z
     .instanceof(FileList)
     .refine((fileList) => fileList.length >= 2, { message: "Please upload at least 2 required documents" }),
@@ -105,10 +102,10 @@ const LawyerRegistrationForm = () => {
     try {
       const result = await newLawyer(formData);
       console.log("Form submission result:", result);
-      // You might want to add success/error feedback here (e.g., toast notifications)
+
     } catch (error) {
       console.error("Form submission error:", error);
-      // Handle submission errors
+     
     }
   };
 
@@ -225,14 +222,6 @@ const LawyerRegistrationForm = () => {
           <Textarea id="bio" {...register("bio")} rows={4} />
           <ZodErrors error={errors.bio?.message ? [errors.bio.message] : undefined} />
         </div>
-
-        {/* <div>
-          <label htmlFor="profilePicture" className="block text-sm font-medium mb-1">
-            Profile Picture
-          </label>
-          <Input id="profilePicture" type="file" accept="image/jpeg,image/png" {...register("profilePicture")} />
-          <ZodErrors error={errors.profilePicture?.message ? [errors.profilePicture.message] : undefined} />
-        </div> */}
 
         <div>
           <label htmlFor="documents" className="block text-sm font-medium mb-1">
