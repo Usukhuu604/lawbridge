@@ -80,7 +80,7 @@ const schemaLawyerProfile = z.object({
 });
 
 export const newLawyer = async (formData: FormData) => {
-  const user = ""; // This should be replaced with actual user authentication
+  const user = ""; 
 
   if (!user) {
     return {
