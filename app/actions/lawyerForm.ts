@@ -62,12 +62,12 @@ const schemaLawyerProfile = z.object({
     .string()
     .min(50, { message: "Bio must be at least 50 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
-  profilePicture: z
-    .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, { message: "File size must be less than 5MB" })
-    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
-      message: "Only JPG and PNG files are allowed",
-    }),
+  // profilePicture: z
+  //   .instanceof(File)
+  //   .refine((file) => file.size <= 5 * 1024 * 1024, { message: "File size must be less than 5MB" })
+  //   .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+  //     message: "Only JPG and PNG files are allowed",
+  //   }),
   documents: z
     .array(z.instanceof(File))
     .min(2, { message: "Please upload required documents" })
@@ -103,7 +103,7 @@ export const newLawyer = async (formData: FormData) => {
       aimag: formData.get("aimag"),
     },
     bio: formData.get("bio"),
-    profilePicture: formData.get("profilePicture"),
+    // profilePicture: formData.get("profilePicture"),
     documents: formData.getAll("documents"),
   });
 
