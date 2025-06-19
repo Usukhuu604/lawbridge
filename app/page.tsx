@@ -11,16 +11,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { newLawyer } from "./actions/lawyerForm";
 import { ZodErrors } from "./_components/ZodError";
 
-// const specializations = [
-//   "Criminal Law",
-//   "Family Law",
-//   "Corporate Law",
-//   "Civil Law",
-//   "Property Law",
-//   "Intellectual Property",
-//   "Tax Law",
-//   "Labor Law",
-// ];
+const specializations = [
+  'Эрүүгийн эрх зүй',
+'Гэр бүлийн эрх зүй',
+'Компанийн эрх зүй',
+'Иргэний эрх зүй',
+'Эд хөрөнгийн эрх зүй',
+'Оюуны өмч',
+'Татварын эрх зүй',
+'Хөдөлмөрийн эрх зүй'
+];
 
 const schemaLawyerProfile = z.object({
   fullName: z.string().min(3, { message: "Full name is required" }),
@@ -55,30 +55,30 @@ const LawyerRegistrationForm = () => {
   const {
     register,
     handleSubmit,
-    setValue, // Added setValue to manually update checkbox array
-    watch, // Added watch to get current value of specializations
-    formState: { errors, isSubmitting }, // Added isSubmitting for button state
+    setValue, 
+    watch, 
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schemaLawyerProfile),
     defaultValues: {
-      specializations: [], // Initialize specializations as an empty array
+      specializations: [],
     },
   });
 
   const watchedSpecializations = watch("specializations"); // Watch for changes in specializations
 
-  // const handleCheckboxChange = (checked: boolean | string, value: string) => {
-  //   const currentSpecializations = watchedSpecializations || [];
-  //   if (checked) {
-  //     setValue("specializations", [...currentSpecializations, value], { shouldValidate: true });
-  //   } else {
-  //     setValue(
-  //       "specializations",
-  //       currentSpecializations.filter((spec) => spec !== value),
-  //       { shouldValidate: true }
-  //     );
-  //   }
-  // };
+  const handleCheckboxChange = (checked: boolean | string, value: string) => {
+    const currentSpecializations = watchedSpecializations || [];
+    if (checked) {
+      setValue("specializations", [...currentSpecializations, value], { shouldValidate: true });
+    } else {
+      setValue(
+        "specializations",
+        currentSpecializations.filter((spec) => spec !== value),
+        { shouldValidate: true }
+      );
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     const formData = new FormData();
@@ -88,14 +88,14 @@ const LawyerRegistrationForm = () => {
         (value as string[]).forEach((spec) => formData.append("specializations", spec));
       } else if (key === "officeAddress") {
         Object.entries(value as { [s: string]: unknown }).forEach(([addrKey, addrValue]) => {
-          formData.append(`officeAddress[${addrKey}]`, String(addrValue)); // Append with specific key for nesting
+          formData.append(`officeAddress[${addrKey}]`, String(addrValue)); 
         });
       } else if (key === "profilePicture" || key === "documents") {
         Array.from(value as FileList).forEach((file) => {
           formData.append(key, file);
         });
       } else {
-        formData.append(key, String(value)); // Ensure all other values are converted to strin
+        formData.append(key, String(value)); 
       }
     });
 
@@ -145,7 +145,7 @@ const LawyerRegistrationForm = () => {
           <ZodErrors error={errors.yearOfAdmission?.message ? [errors.yearOfAdmission.message] : undefined} />
         </div>
  */}
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium mb-1">Specializations</label>
           <div className="grid grid-cols-2 gap-2">
             {specializations.map((spec) => (
@@ -162,7 +162,7 @@ const LawyerRegistrationForm = () => {
             ))}
           </div>
           {errors.specializations && <p className="text-red-500 text-sm mt-1">{errors.specializations.message}</p>}
-        </div> */}
+        </div>
 
         {/* Office Address */}
         <div className="space-y-4 border p-4 rounded-md">
