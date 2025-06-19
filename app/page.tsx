@@ -12,14 +12,14 @@ import { newLawyer } from "./actions/lawyerForm";
 import { ZodErrors } from "./_components/ZodError";
 
 const specializations = [
-  'Эрүүгийн эрх зүй',
-'Гэр бүлийн эрх зүй',
-'Компанийн эрх зүй',
-'Иргэний эрх зүй',
-'Эд хөрөнгийн эрх зүй',
-'Оюуны өмч',
-'Татварын эрх зүй',
-'Хөдөлмөрийн эрх зүй'
+  "Эрүүгийн эрх зүй",
+  "Гэр бүлийн эрх зүй",
+  "Компанийн эрх зүй",
+  "Иргэний эрх зүй",
+  "Эд хөрөнгийн эрх зүй",
+  "Оюуны өмч",
+  "Татварын эрх зүй",
+  "Хөдөлмөрийн эрх зүй",
 ];
 
 const schemaLawyerProfile = z.object({
@@ -44,9 +44,8 @@ const schemaLawyerProfile = z.object({
     .string()
     .min(50, { message: "Bio must be at least 50 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
-  documents: z
-    .instanceof(FileList)
-    .refine((fileList) => fileList.length >= 2, { message: "Please upload at least 2 required documents" }),
+  documents: z.instanceof(FileList),
+  // .refine((fileList) => fileList.length >= 2, { message: "Please upload at least 2 required documents" }),
 });
 
 type FormData = z.infer<typeof schemaLawyerProfile>;
@@ -55,8 +54,8 @@ const LawyerRegistrationForm = () => {
   const {
     register,
     handleSubmit,
-    setValue, 
-    watch, 
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schemaLawyerProfile),
@@ -88,30 +87,31 @@ const LawyerRegistrationForm = () => {
         (value as string[]).forEach((spec) => formData.append("specializations", spec));
       } else if (key === "officeAddress") {
         Object.entries(value as { [s: string]: unknown }).forEach(([addrKey, addrValue]) => {
-          formData.append(`officeAddress[${addrKey}]`, String(addrValue)); 
+          formData.append(`officeAddress[${addrKey}]`, String(addrValue));
         });
       } else if (key === "profilePicture" || key === "documents") {
         Array.from(value as FileList).forEach((file) => {
           formData.append(key, file);
         });
       } else {
-        formData.append(key, String(value)); 
+        formData.append(key, String(value));
       }
     });
 
     try {
       const result = await newLawyer(formData);
       console.log("Form submission result:", result);
-
     } catch (error) {
       console.error("Form submission error:", error);
-     
     }
   };
 
   return (
     <div className="w-screen min-h-screen flex justify-center items-center p-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-2xl border shadow-2xl p-8 rounded-lg space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full max-w-2xl border shadow-2xl p-8 rounded-lg space-y-6 bg-gray-100"
+      >
         <h1 className="text-2xl font-bold mb-6 text-center">Өмгөөлөгчийн бүртгэл</h1>
 
         <div>
