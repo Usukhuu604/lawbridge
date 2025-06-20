@@ -1,11 +1,10 @@
-// experience, license, fields
-
 "use client";
 
-import { Input, Checkbox, Textarea } from "@/components/ui";
+import { Input, Checkbox, Textarea, Button } from "@/components/ui";
 import { ZodErrors } from "../ZodError";
 import { FormData } from "@/app/page";
 import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
+import { useState } from "react";
 
 const specializations = [
   "Эрүүгийн эрх зүй",
@@ -23,9 +22,21 @@ type Props = {
   watchedSpecializations: string[];
   register: UseFormRegister<FormData>;
   setValue: UseFormSetValue<FormData>;
+  goToNextStep?: () => void;
+  goToPreviousStep?: () => void;
 };
 
-const SecondCardForLawyer = ({ register, errors, setValue, watchedSpecializations }: Props) => {
+const SecondCardForLawyer = ({
+  register,
+  errors,
+  setValue,
+  watchedSpecializations,
+  goToNextStep,
+  goToPreviousStep,
+}: Props) => {
+  const handleNextStep = goToNextStep;
+  const handlePreviousStep = goToPreviousStep;
+
   const handleCheckboxChange = (checked: boolean | string, value: string) => {
     const currentSpecializations = watchedSpecializations || [];
     if (checked) {
@@ -74,6 +85,15 @@ const SecondCardForLawyer = ({ register, errors, setValue, watchedSpecialization
         </label>
         <Textarea id="bio" {...register("bio")} rows={4} />
         <ZodErrors error={errors.bio?.message ? [errors.bio.message] : undefined} />
+      </div>
+
+      <div className="w-full grid grid-cols-2 justify-between gap-5 mt-4">
+        <Button onClick={handlePreviousStep} className="bg-red-300">
+          Back
+        </Button>
+        <Button onClick={handleNextStep} className="bg-blue-300">
+          Continue
+        </Button>
       </div>
     </div>
   );

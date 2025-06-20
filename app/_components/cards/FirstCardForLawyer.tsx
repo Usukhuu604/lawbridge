@@ -1,18 +1,19 @@
-//full name, avatar image, email
-
 "use client";
 
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { Input } from "@/components/ui";
+import { Input, Button } from "@/components/ui";
 import { ZodErrors } from "../ZodError";
 import { FormData } from "@/app/page";
 
 type Props = {
   register: UseFormRegister<FormData>;
   errors: FieldErrors<FormData>;
+  goToNextStep?: () => void;
 };
 
-const FirstCardForLawyer = ({ register, errors }: Props) => {
+const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
+  const handleNextStep = goToNextStep;
+
   return (
     <div>
       <div>
@@ -29,6 +30,9 @@ const FirstCardForLawyer = ({ register, errors }: Props) => {
         <Input id="eMail" {...register("email")} />
         <ZodErrors error={errors.email?.message ? [errors.email.message] : undefined} />
       </div>
+      <Button onClick={handleNextStep} className="w-full mt-6 bg-blue-300">
+        next
+      </Button>
     </div>
   );
 };

@@ -1,5 +1,10 @@
 avatar image -> cloudflare R2
 ehnii huudas deer email avna
+//full name, avatar image, email
+// experience, license, fields
+// university, documents, appointment
+
+
 
 git fetch origin 
 git checkout 4-lawbridge-frontend-react-hook-formzod-lawyer-signup-form
