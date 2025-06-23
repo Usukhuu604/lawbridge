@@ -7,14 +7,24 @@ import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { useState } from "react";
 
 const specializations = [
-  "Эрүүгийн эрх зүй",
-  "Гэр бүлийн эрх зүй",
+  "Эрүүгийн хууль",
+  "Иргэний хууль",
+  "Гэр бүлийн хууль",
   "Компанийн эрх зүй",
-  "Иргэний эрх зүй",
   "Эд хөрөнгийн эрх зүй",
   "Оюуны өмч",
-  "Татварын эрх зүй",
-  "Хөдөлмөрийн эрх зүй",
+  "Татварын хууль",
+  "Хөдөлмөрийн хууль",
+  "Захиргааны эрх зүй",
+  "Үндсэн хуулийн эрх зүй",
+  "Банк, санхүүгийн эрх зүй",
+  "Байгаль орчны эрх зүй",
+  "Олон улсын эрх зүй",
+  "Газар зохион байгуулалт",
+  "Худалдааны эрх зүй",
+  "Даатгалын эрх зүй",
+  "Хэрэглэгчийн эрх ашгийг хамгаалах",
+  "Кибер аюулгүй байдал ба мэдээллийн технологийн",
 ];
 
 type Props = {
@@ -88,11 +98,11 @@ const SecondCardForLawyer = ({
       </div>
 
       <div className="w-full grid grid-cols-2 justify-between gap-5 mt-4">
-        <Button onClick={handlePreviousStep} className="bg-red-300">
-          Back
+        <Button onClick={handlePreviousStep} className="bg-black text-white cursor-pointer hover:bg-gray-800 ">
+          Буцах
         </Button>
-        <Button onClick={handleNextStep} className="bg-blue-300">
-          Continue
+        <Button onClick={handleNextStep} className="bg-blue-400 hover:bg-blue-300 cursor-pointer text-white">
+          Дараачийн
         </Button>
       </div>
     </div>

@@ -4,67 +4,13 @@ ehnii huudas deer email avna
 // experience, license, fields
 // university, documents, appointment
 
+R2_ACCESS_KEY_ID=0dbc6ba7674924e63aeaabe6c27e6fea
+R2_SECRET_ACCESS_KEY=cff677846a324794a509ae0a7418228efa7bb53dca291a3d1e57f6ab3892bd33
+R2_BUCKET_NAME=lawyer-profile-uploads
+R2_ENDPOINT=https://7315da2f2cc67799e0617c8effaebd45.r2.cloudflarestorage.com
+
 
 
 git fetch origin 
 git checkout 4-lawbridge-frontend-react-hook-formzod-lawyer-signup-form
-
-
-A. General User (Solution Seeker) Registration:
-
-Name: 
-    Format: Full name (first name, last name). Consider supporting Mongolian script.
-    Validation: Required field, min/max length, only alphabetic characters (and potentially hyphens/apostrophes for complex names).
-Email Address:
-    Format: Standard email format (e.g., user@example.com).
-    Validation: Required field, valid email regex, uniqueness check.
-    Verification: Email confirmation link.
-Phone Number:
-    Format: Mongolian phone numbers typically start with 9, 8, or 7, followed by 7 digits (e.g., 99xxxxxx, 70xxxxxx, 88xxxxxx). Total 8 digits.
-    Validation: Required field, 8 digits, starts with allowed prefixes.
-    Verification: SMS OTP (One-Time Password) is highly recommended for phone number verification.
-Location (Aimags/Soums or Districts of Ulaanbaatar):
-    Format: Dropdown menus or searchable fields for selecting administrative divisions in Mongolia (Aimags/Provinces, and then Soums/Districts).
-    Validation: Required selection.
-Problem Description:
-    Format: Free text field.
-    Validation: Required field, min/max length, discourage sensitive personal information (unless explicitly part of a secure, confidential submission).
-
-B. Lawyer Registration:
-
-In addition to the general user validations:
-    Lawyer's Full Name: (As per their official documents)
-    Mongolian National Identity Card Number (Регистрийн дугаар):
-    Format: This is a unique 10-digit number for Mongolian citizens, often starting with two letters followed by 8 digits (e.g., АБ12345678).
-    Validation: Required field, exact format, uniqueness check against your database.
-    Note: This is a crucial piece of data for verification with official sources.
-Lawyer's License Number:
-    Format: As issued by the Mongolian Bar Association.
-    Validation: Required field, specific format (if any), uniqueness.
-Year of Admission to the Bar:
-    Validation: Numeric, realistic year range.
-    Areas of Specialization:
-    Format: Multi-select checkboxes or a tag input field (e.g., Criminal Law, Family Law, Corporate Law, etc.).
-    Validation: Required to select at least one area.
-Office Address:
-    Format: Street, Building, Apartment/Suite, District/Soum, Aimag/City (Ulaanbaatar).
-    Validation: Required fields.
-Professional Bio/Description:
-    Format: Text area.
-    Validation: Min/max length.
-Profile Picture:
-    Validation: File type (JPG, PNG), file size limits.
-Documents Upload:
-    Mandatory: Scanned copy of Lawyer's License, National ID.
-    Optional: Academic degrees, certificates, professional recommendations.
-    Validation: File types (PDF, JPG, PNG), file size limits, secure storage.
-
-C. Appointment Scheduling:
-
-Date and Time:
-    Validation: Must be in the future, within lawyer's availability, proper time slot.
-    Appointment Type: (e.g., In-person, Phone Call, Video Call)
-    Validation: Required selection.
-Briefing for Lawyer:
-    Validation: Text area, min/max length.
 

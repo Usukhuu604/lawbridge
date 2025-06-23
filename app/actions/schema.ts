@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { any } from "zod";
 
 export const schemaLawyerProfile = z.object({
   fullName: z.string().min(3, { message: "Full name is required" }),
@@ -8,7 +8,7 @@ export const schemaLawyerProfile = z.object({
   specializations: z.array(z.string()).min(1, { message: "Select at least one specialization" }),
   bio: z
     .string()
-    .min(50, { message: "Bio must be at least 50 characters" })
+    .min(10, { message: "Bio must be at least 10 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
   university: z.string().min(2, { message: "Enter name of the university" }),
   documents: z.custom<FileList | undefined>(
@@ -20,4 +20,7 @@ export const schemaLawyerProfile = z.object({
       message: "Please upload required documents",
     }
   ),
+  profileImage: z.instanceof(FileList).refine((files) => files.length > 0, {
+    message: "Зураг заавал оруулна уу",
+  }),
 });

@@ -43,11 +43,15 @@ const ThirdCardForLawyer = ({ errors, register, isSubmitting, goToPreviousStep }
       </div>
 
       <div className="grid grid-cols-2 mt-6 gap-10">
-        <Button onClick={handlePreviousStep} className="bg-red-300">
-          Back
+        <Button onClick={handlePreviousStep} className="bg-black text-white cursor-pointer hover:bg-gray-800">
+          Буцах
         </Button>
-        <Button type="submit" className="w-full bg-blue-400" disabled={isSubmitting}>
-          {isSubmitting ? "Registering..." : "Register"}
+        <Button
+          type="submit"
+          className="w-full bg-blue-400 hover:bg-blue-300 cursor-pointer text-white"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Registering..." : "Бүртгүүлэх"}
         </Button>
       </div>
     </div>

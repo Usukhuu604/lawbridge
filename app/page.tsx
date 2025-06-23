@@ -1,15 +1,13 @@
 "use client";
 
 import { z } from "zod";
-import { Button } from "@/components/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FirstCardForLawyer from "./_components/cards/FirstCardForLawyer";
 import SecondCardForLawyer from "./_components/cards/SecondCardForLawyer";
 import ThirdCardForLawyer from "./_components/cards/ThirdCardForLawyer";
 import { schemaLawyerProfile } from "./actions/schema";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export type FormData = z.infer<typeof schemaLawyerProfile>;
@@ -47,15 +45,18 @@ const LawyerRegistrationForm = () => {
   };
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [previousStep, setPreviousStep] = useState(0);
 
   const goToNextStep = () => {
     if (currentStep < 3) {
+      setPreviousStep(currentStep);
       setCurrentStep((previousStep) => previousStep + 1);
     }
   };
 
   const goToPreviousStep = () => {
     if (currentStep > 0) {
+      setPreviousStep(currentStep);
       setCurrentStep((previousStep) => previousStep - 1);
     }
   };
@@ -72,14 +73,10 @@ const LawyerRegistrationForm = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            variants={{
-              enter: { opacity: 1, x: 0 },
-              center: { opacity: 1, x: 0 },
-              exit: { opacity: 0, x: -100 },
-            }}
+            initial={{ opacity: 0, x: currentStep > previousStep ? 100 : -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: currentStep > previousStep ? -100 : 100 }}
+            variants={undefined}
             className="space-y-4"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
