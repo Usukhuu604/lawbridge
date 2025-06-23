@@ -11,16 +11,26 @@ export const schemaLawyerProfile = z.object({
     .min(10, { message: "Bio must be at least 10 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
   university: z.string().min(2, { message: "Enter name of the university" }),
-  documents: z.custom<FileList | undefined>(
+  documents: z.custom(
     (value) => {
-      if (!value) return false;
-      return value instanceof FileList && value.length >= 1;
+      if (typeof FileList !== "undefined" && value instanceof FileList) {
+        return value.length >= 1;
+      }
+      return false;
     },
     {
       message: "Please upload required documents",
     }
   ),
-  profileImage: z.instanceof(FileList).refine((files) => files.length > 0, {
-    message: "Зураг заавал оруулна уу",
-  }),
+  profileImage: z.custom(
+    (value) => {
+      if (typeof FileList !== "undefined" && value instanceof FileList) {
+        return value.length > 0;
+      }
+      return false;
+    },
+    {
+      message: "Зураг заавал оруулна уу",
+    }
+  ),
 });

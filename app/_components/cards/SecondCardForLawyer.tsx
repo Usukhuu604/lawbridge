@@ -44,7 +44,11 @@ const SecondCardForLawyer = ({
   goToNextStep,
   goToPreviousStep,
 }: Props) => {
-  const handleNextStep = goToNextStep;
+  const handleNextStep = () => {
+    if (!errors.licenseNumber && !errors.specializations && !errors.bio) {
+      goToNextStep && goToNextStep();
+    }
+  };
   const handlePreviousStep = goToPreviousStep;
 
   const handleCheckboxChange = (checked: boolean | string, value: string) => {

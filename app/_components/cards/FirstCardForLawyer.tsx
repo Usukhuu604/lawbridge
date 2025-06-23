@@ -14,22 +14,10 @@ type Props = {
 };
 
 const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    setUploadedImageUrl(data.url);
+  const handleNextStep = () => {
+    if (!errors.fullName && !errors.email) {
+      goToNextStep && goToNextStep();
+    }
   };
 
   return (
@@ -50,7 +38,7 @@ const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
       </div>
       <Avatar />
 
-      <Button onClick={goToNextStep} className="w-full mt-6 bg-blue-400 hover:bg-blue-300 cursor-pointer text-white">
+      <Button onClick={handleNextStep} className="w-full mt-6 bg-blue-400 hover:bg-blue-300 cursor-pointer text-white">
         Дараачийн
       </Button>
     </div>
