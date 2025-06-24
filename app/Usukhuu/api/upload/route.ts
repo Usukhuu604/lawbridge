@@ -1,37 +1,37 @@
-const dotenv = require("dotenv");
-import fs from "fs";
-const AWS = require("aws-sdk");
-dotenv.config();
+import { NextRequest, NextResponse } from "next/server";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-const s3 = new AWS.S3({
-  endpoint: process.env.R2_ENDPOINT,
-  accessKeyId: process.env.R2_ACCESS_KEY_ID,
-  secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+const r2 = new S3Client({
   region: "auto",
-  signatureVersion: "v4",
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
 });
 
-module.exports = {
-  uploadToR2: async (filePath, fileName) => {
-    const fileStats = fs.statSync(filePath);
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const file = formData.get("file") as File;
 
-    if (fileStats.size > 5242880) {
-      // >5MB, use putObject and return a promise
-      const file = fs.readFileSync(filePath);
-      const params = {
-        Bucket: process.env.R2_BUCKET_NAME,
-        Key: fileName,
-        Body: file,
-      };
-      return await s3.putObject(params).promise();
-    } else {
-      // <=5MB, use upload and return a promise
-      const params = {
-        Bucket: process.env.R2_BUCKET_NAME,
-        Key: fileName,
-        Body: fs.createReadStream(filePath),
-      };
-      return await s3.upload(params).promise();
-    }
-  },
-};
+  if (!file) {
+    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const key = `uploads/${Date.now()}-${file.name}`;
+
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME!,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+    })
+  );
+
+  const url = `${process.env.R2_ENDPOINT}/${process.env.R2_BUCKET_NAME}/${key}`;
+
+  return NextResponse.json({ url });
+}

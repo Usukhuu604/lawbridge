@@ -61,7 +61,7 @@ const SecondCardForLawyer = ({ register, errors, goToNextStep, goToPreviousStep 
         <Button onClick={handlePreviousStep} className="bg-black text-white cursor-pointer hover:bg-gray-800 ">
           Буцах
         </Button>
-        <Button onClick={handleNextStep} className="bg-blue-400 hover:bg-blue-300 cursor-pointer text-white">
+        <Button onClick={handleNextStep} className="bg-blue-500 hover:bg-blue-400 cursor-pointer text-white">
           Дараачийн
         </Button>
       </div>

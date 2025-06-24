@@ -13,38 +13,11 @@ type Props = {
 };
 
 const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-
   const handleNextStep = () => {
     if (!errors.firstName && !errors.lastName && !errors.email) {
       goToNextStep && goToNextStep();
     } else {
       goToNextStep && goToNextStep(); // ustgah
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        // Optionally, your backend can return the file URL
-        const data = await res.json();
-        setAvatarUrl(data.url); // Make sure your backend returns { url: "..." }
-      }
-    } catch (err) {
-      // handle error
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -76,9 +49,9 @@ const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
         <ZodErrors error={errors.email?.message ? [errors.email.message] : undefined} />
       </div>
 
-      <Avatar src={avatarUrl || undefined} />
+      <Avatar errors={errors} />
 
-      <Button onClick={handleNextStep} className="w-full bg-blue-400 hover:bg-blue-300 cursor-pointer text-white">
+      <Button onClick={handleNextStep} className="w-full bg-blue-500 hover:bg-blue-400 cursor-pointer text-white">
         Дараачийн
       </Button>
     </div>

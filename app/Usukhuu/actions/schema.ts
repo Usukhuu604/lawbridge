@@ -14,6 +14,7 @@ export const schemaLawyerProfile = z.object({
     .min(10, { message: "Bio must be at least 10 characters" })
     .max(1000, { message: "Bio cannot exceed 1000 characters" }),
   university: z.string().min(2, { message: "Enter name of the university" }),
+  avatar: z.string().url({ message: "Avatar must be a valid URL" }).min(1, { message: "Avatar is required" }),
   documents: z.custom(
     (value) => {
       if (typeof FileList !== "undefined" && value instanceof FileList) {
@@ -23,17 +24,6 @@ export const schemaLawyerProfile = z.object({
     },
     {
       message: "Please upload required documents",
-    }
-  ),
-  profileImage: z.custom(
-    (value) => {
-      if (typeof FileList !== "undefined" && value instanceof FileList) {
-        return value.length > 0;
-      }
-      return false;
-    },
-    {
-      message: "Зураг заавал оруулна уу",
     }
   ),
 });
