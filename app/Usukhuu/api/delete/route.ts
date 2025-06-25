@@ -11,12 +11,11 @@ const r2 = new S3Client({
 });
 
 export async function POST(req: NextRequest) {
-  const { url } = await req.json();
-  // Extract the key from the URL
+  const { key } = await req.json();
+
   const bucketName = process.env.R2_BUCKET_NAME!;
-  const key = url.split(`/${bucketName}/`)[1];
   if (!key) {
-    return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+    return NextResponse.json({ error: "No key provided" }, { status: 400 });
   }
 
   try {

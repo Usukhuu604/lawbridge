@@ -1,12 +1,28 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
-export const useUploadAvatar = ({ onUpload }: { onUpload: (url: string) => void }) => {
+const LOCALSTORAGE_KEY = "avatar_image_key";
+const LOCALSTORAGE_EXP = "avatar_image_key_exp";
+const CACHE_MINUTES = 30;
+
+export const useUploadAvatar = ({ onUpload }: { onUpload: (key: string) => void }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [previewLink, setPreviewLink] = useState("");
+  const [imageKey, setImageKey] = useState<string>("");
+
+  useEffect(() => {
+    const cachedKey = localStorage.getItem(LOCALSTORAGE_KEY);
+    const cachedExp = localStorage.getItem(LOCALSTORAGE_EXP);
+    if (cachedKey && cachedExp && Date.now() < Number(cachedExp)) {
+      setImageKey(cachedKey);
+      onUpload(cachedKey);
+    }
+  }, [onUpload]);
+
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  const getPreviewLink = (key: string) => (key ? `/Usukhuu/api/get?key=${encodeURIComponent(key)}` : "");
 
   const openBrowse = () => fileInputRef.current?.click();
 
@@ -21,9 +37,11 @@ export const useUploadAvatar = ({ onUpload }: { onUpload: (url: string) => void 
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      const imageUrl = data.url;
-      onUpload(imageUrl);
-      setPreviewLink(imageUrl);
+      const key = data.key || "";
+      setImageKey(key);
+      onUpload(key);
+      localStorage.setItem(LOCALSTORAGE_KEY, key);
+      localStorage.setItem(LOCALSTORAGE_EXP, (Date.now() + CACHE_MINUTES * 60 * 1000).toString());
     } catch (err) {
       console.error("Upload failed", err);
       alert("Failed to upload image");
@@ -45,26 +63,27 @@ export const useUploadAvatar = ({ onUpload }: { onUpload: (url: string) => void 
   };
 
   const deleteImage = async () => {
-    if (previewLink) {
+    if (imageKey) {
       try {
         await fetch("/Usukhuu/api/delete", {
           method: "POST",
-          body: JSON.stringify({ url: previewLink }),
+          body: JSON.stringify({ key: imageKey }),
           headers: { "Content-Type": "application/json" },
         });
       } catch (err) {
         console.error("Failed to delete image from bucket", err);
       }
     }
-
-    setPreviewLink("");
+    setImageKey("");
     onUpload("");
+    localStorage.removeItem(LOCALSTORAGE_KEY);
+    localStorage.removeItem(LOCALSTORAGE_EXP);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return {
     fileInputRef,
-    previewLink,
+    previewLink: getPreviewLink(imageKey),
     uploading,
     isDragging,
     openBrowse,

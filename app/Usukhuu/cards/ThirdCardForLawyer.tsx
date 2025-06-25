@@ -11,7 +11,6 @@ type Props = {
   register: UseFormRegister<FormData>;
   setValue: UseFormSetValue<FormData>;
   watchedSpecializations: string[];
-
   isSubmitting?: boolean;
   goToPreviousStep?: () => void;
 };

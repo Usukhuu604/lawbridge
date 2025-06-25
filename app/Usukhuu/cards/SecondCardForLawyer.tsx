@@ -14,9 +14,10 @@ const SecondCardForLawyer = ({ register, errors, goToNextStep, goToPreviousStep 
   const handleNextStep = () => {
     if (!errors.licenseNumber && !errors.university && !errors.bio) {
       goToNextStep && goToNextStep();
-    } else {
-      goToNextStep && goToNextStep();
     }
+    // else {
+    //   goToNextStep && goToNextStep();
+    // }
   };
 
   const handlePreviousStep = goToPreviousStep;

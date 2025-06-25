@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
     })
   );
 
-  const url = `${process.env.R2_ENDPOINT}/${process.env.R2_BUCKET_NAME}/${key}`;
-
-  return NextResponse.json({ url });
+  // Return only the key, not the full URL
+  return NextResponse.json({ key });
 }

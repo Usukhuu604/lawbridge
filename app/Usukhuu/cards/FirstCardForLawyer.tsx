@@ -16,9 +16,10 @@ const FirstCardForLawyer = ({ register, errors, goToNextStep }: Props) => {
   const handleNextStep = () => {
     if (!errors.firstName && !errors.lastName && !errors.email) {
       goToNextStep && goToNextStep();
-    } else {
-      goToNextStep && goToNextStep(); // ustgah
     }
+    // else {
+    //   goToNextStep && goToNextStep(); // ustgah
+    // }
   };
 
   return (

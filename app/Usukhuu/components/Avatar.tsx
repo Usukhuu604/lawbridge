@@ -12,7 +12,6 @@ type Props = {
 };
 
 const Avatar = ({ errors }: Props) => {
-  const [uploadedUrl, setUploadedUrl] = useState<string>("");
   const {
     fileInputRef,
     previewLink,
@@ -23,13 +22,26 @@ const Avatar = ({ errors }: Props) => {
     handleDrop,
     deleteImage,
     setIsDragging,
-  } = useUploadAvatar({ onUpload: setUploadedUrl });
+  } = useUploadAvatar({ onUpload: () => {} });
 
   return (
-    <div>
-      <label htmlFor="profileImage" className="block text-sm font-medium mb-1">
-        Нүүр зураг оруулах
-      </label>
+    <div className="grid grid-cols-2">
+      <div>
+        <label htmlFor="profileImage" className="block text-sm font-medium mb-1">
+          Нүүр зураг оруулах
+        </label>
+        {previewLink && (
+          <button
+            type="button"
+            onClick={deleteImage}
+            className="mt-2 text-sm text-red-500 hover:underline cursor-pointer"
+          >
+            Remove image
+          </button>
+        )}
+        {uploading && <div className="text-sm text-blue-500 mt-2">Uploading...</div>}
+      </div>
+
       <Input
         id="profileImage"
         type="file"
@@ -39,7 +51,7 @@ const Avatar = ({ errors }: Props) => {
         style={{ display: "none" }}
       />
       <div
-        className={`flex items-center justify-center bg-gray-100 w-full h-32 rounded-md border-dashed border-2 mb-2 cursor-pointer ${
+        className={`flex items-center justify-center bg-gray-100 size-full max-h-50 rounded-md border-dashed border-2 mb-2 cursor-pointer ${
           isDragging ? "border-blue-500 bg-blue-50" : "border-gray-400"
         }`}
         onClick={openBrowse}
@@ -50,24 +62,13 @@ const Avatar = ({ errors }: Props) => {
         }}
         onDragLeave={() => setIsDragging(false)}
       >
-        {previewLink || uploadedUrl ? (
-          <img src={previewLink || uploadedUrl} alt="preview" className="w-32 h-32 rounded-md object-cover" />
+        {previewLink ? (
+          <img src={previewLink} alt="" className="h-full" />
         ) : (
           <span className="text-gray-500">Click or drag an image here</span>
         )}
       </div>
       <ZodErrors error={errors.avatar?.message ? [errors.avatar.message] : undefined} />
-
-      {(previewLink || uploadedUrl) && (
-        <button
-          type="button"
-          onClick={deleteImage}
-          className="mt-2 text-xs text-red-500 hover:underline cursor-pointer"
-        >
-          Remove image
-        </button>
-      )}
-      {uploading && <div className="text-sm text-blue-500 mt-2">Uploading...</div>}
     </div>
   );
 };
